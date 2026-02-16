@@ -59,7 +59,7 @@ async function updateHistoricalData(
 
   // Read existing daily file or create 24-hour array
   const dailyFile = path.join(HISTORY_DIR, dateString);
-  let dailyData: HistoricalData = { readings: Array(24).fill(null) };
+  let dailyData: HistoricalData = { hours: Array(24).fill(null) };
   try {
     const existing = await fs.readFile(dailyFile, "utf-8");
     dailyData = JSON.parse(existing);
@@ -69,7 +69,7 @@ async function updateHistoricalData(
 
   // Insert reading at the correct hour index (0-23)
   const hour = readingDate.getUTCHours();
-  dailyData.readings[hour] = newReading;
+  dailyData.hours[hour] = newReading;
 
   // Write updated daily file
   await fs.writeFile(
@@ -142,7 +142,7 @@ async function generateRecentFile(): Promise<void> {
       const content = await fs.readFile(filePath, "utf-8");
       const data: HistoricalData = JSON.parse(content);
       // Filter out null entries (hours with no data)
-      const validReadings = data.readings.filter(
+      const validReadings = data.hours.filter(
         (r): r is HistoricalReading => r !== null
       );
       allReadings.push(...validReadings);
