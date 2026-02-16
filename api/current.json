@@ -1,0 +1,20 @@
+[
+  {
+    "location": "markhopkins-northeast",
+    "currentStatus": {
+      "fogLevel": "heavy",
+      "visibilityScore": 0,
+      "timestamp": "2026-02-16T01:54:19.380Z"
+    },
+    "prediction": null
+  },
+  {
+    "location": "salesforce-north",
+    "currentStatus": {
+      "fogLevel": "moderate",
+      "visibilityScore": 33,
+      "timestamp": "2026-02-16T01:54:21.885Z"
+    },
+    "prediction": null
+  }
+]

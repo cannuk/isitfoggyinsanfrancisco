@@ -11,7 +11,8 @@ import type {
   VisibilityResult,
 } from "./types.js";
 
-const DATA_DIR = path.resolve(import.meta.dirname, "..", "data", "locations");
+const PROJECT_ROOT = path.resolve(import.meta.dirname, "..");
+const DATA_DIR = path.join(PROJECT_ROOT, "data", "locations");
 
 /**
  * Compare a specific region of a live webcam image against a stored template.
@@ -33,7 +34,11 @@ export async function checkLandmarkVisibility(
     .toBuffer();
 
   // Load and process the stored template the same way
-  const templatePng = await sharp(landmark.templatePath)
+  // Resolve template path: if absolute, use as-is; otherwise resolve relative to project root
+  const absoluteTemplatePath = path.isAbsolute(landmark.templatePath)
+    ? landmark.templatePath
+    : path.join(PROJECT_ROOT, landmark.templatePath);
+  const templatePng = await sharp(absoluteTemplatePath)
     .grayscale()
     .normalize()
     .png()

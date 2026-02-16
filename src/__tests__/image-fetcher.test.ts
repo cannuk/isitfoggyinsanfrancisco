@@ -74,7 +74,7 @@ describe("fetchWebcamImage", () => {
       expect(result).toBeInstanceOf(Buffer);
       expect(result.length).toBeGreaterThan(0);
       expect(mockExecFileAsync).toHaveBeenCalledWith(
-        "ffmpeg",
+        expect.stringContaining("ffmpeg"), // Can be "ffmpeg" or "/path/to/ffmpeg"
         expect.arrayContaining(["-i", "https://example.com/stream.m3u8"]),
         expect.objectContaining({ encoding: "buffer" })
       );
