@@ -1,0 +1,33 @@
+{
+  "name": "isitfoggyinsanfrancisco",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Real-time fog detection for San Francisco using webcam imagery",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "check": "tsx src/check-fog.ts",
+    "setup": "tsx src/setup-templates.ts"
+  },
+  "keywords": [
+    "fog",
+    "san-francisco",
+    "webcam",
+    "weather"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "pixelmatch": "^7.1.0",
+    "pngjs": "^7.0.0",
+    "sharp": "^0.34.5"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.3",
+    "@types/pngjs": "^6.0.5",
+    "playwright": "^1.58.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "cameras": [
+    {
+      "id": "salesforce-east",
+      "name": "Salesforce Tower East (Bay Bridge)",
+      "source": {
+        "type": "hls",
+        "url": "https://prope4091ef1.airspace-cdn.cbsivideo.com/weathercams/kpix-salesforce-2/s3-hls/master.m3u8"
+      },
+      "direction": "east",
+      "landmarks_visible": ["Bay Bridge", "Treasure Island", "Oakland skyline"],
+      "resolution": "1280x720"
+    },
+    {
+      "id": "salesforce-north",
+      "name": "Salesforce Tower North (Marina/GG)",
+      "source": {
+        "type": "hls",
+        "url": "https://prope8aah39g.airspace-cdn.cbsivideo.com/weathercams/kpix-salesforce-3/s3-hls/master.m3u8"
+      },
+      "direction": "north-northwest",
+      "landmarks_visible": ["Marina District", "Golden Gate area", "Marin Headlands"],
+      "resolution": "1280x720"
+    },
+    {
+      "id": "markhopkins-south",
+      "name": "Mark Hopkins South (Twin Peaks)",
+      "source": {
+        "type": "hls",
+        "url": "https://poolc4a144d7.airspace-cdn.cbsivideo.com/weathercams/kpix-mark-hopkins-rooftop-cam-1/s3-hls/master.m3u8"
+      },
+      "direction": "south-southwest",
+      "landmarks_visible": ["Sutro Tower", "Twin Peaks", "city skyline"],
+      "resolution": "1280x720"
+    },
+    {
+      "id": "markhopkins-northeast",
+      "name": "Mark Hopkins Northeast (Transamerica)",
+      "source": {
+        "type": "hls",
+        "url": "https://proped8eh466.airspace-cdn.cbsivideo.com/weathercams/kpix-mark-hopkins-rooftop-cam-2/s3-hls/master.m3u8"
+      },
+      "direction": "northeast",
+      "landmarks_visible": ["Transamerica Pyramid", "Alcatraz", "Angel Island", "Bay"],
+      "resolution": "1280x720"
+    },
+    {
+      "id": "markhopkins-north",
+      "name": "Mark Hopkins North (Alcatraz)",
+      "source": {
+        "type": "hls",
+        "url": "https://prope025ba6g.airspace-cdn.cbsivideo.com/weathercams/kpix-mark-hopkins-rooftop-cam-3/s3-hls/master.m3u8"
+      },
+      "direction": "north",
+      "landmarks_visible": ["Alcatraz", "Angel Island", "Bay Bridge (distant)", "Fisherman's Wharf"],
+      "resolution": "1280x720"
+    },
+    {
+      "id": "berkeley",
+      "name": "Berkeley (Lawrence Hall of Science)",
+      "source": {
+        "type": "image",
+        "url": "https://www.ocf.berkeley.edu/~thelawrence/images/newview.jpg"
+      },
+      "direction": "west",
+      "landmarks_visible": ["SF skyline", "Bay", "Golden Gate Bridge (clear days)"],
+      "resolution": "~1200x900"
+    }
+  ]
+}
