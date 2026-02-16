@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Is It Foggy In San Francisco?</title>
+  <meta name="description" content="Real-time fog detection for San Francisco using computer vision and webcam imagery. Check current fog conditions by region.">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      color: #e0e0e0;
+      background: #0a0a0a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 800px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 3.5rem;
+      color: #ffffff;
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+
+    .emoji {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .tagline {
+      font-size: 1.3rem;
+      color: #b0b0b0;
+      margin-bottom: 3rem;
+    }
+
+    .regions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .region-card {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 2rem;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .region-card:hover {
+      transform: translateY(-4px);
+      border-color: #4da6ff;
+    }
+
+    .region-name {
+      font-size: 1.5rem;
+      color: #ffffff;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .region-description {
+      font-size: 0.9rem;
+      color: #888;
+      margin-bottom: 1.5rem;
+    }
+
+    .fog-status {
+      font-size: 2.5rem;
+      margin: 1rem 0;
+      font-weight: 700;
+    }
+
+    .fog-status.clear { color: #4ade80; }
+    .fog-status.light { color: #fbbf24; }
+    .fog-status.moderate { color: #fb923c; }
+    .fog-status.heavy { color: #ef4444; }
+    .fog-status.loading { color: #666; font-size: 1rem; }
+
+    .visibility-score {
+      font-size: 1rem;
+      color: #aaa;
+      margin-top: 0.5rem;
+    }
+
+    .timestamp {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 0.75rem;
+    }
+
+    .links {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      background: #1a1a1a;
+      color: #4da6ff;
+      text-decoration: none;
+      border: 1px solid #333;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      background: #2a2a2a;
+      border-color: #4da6ff;
+      transform: translateY(-2px);
+    }
+
+    .btn.primary {
+      background: #4da6ff;
+      color: #0a0a0a;
+      border-color: #4da6ff;
+    }
+
+    .btn.primary:hover {
+      background: #6bb8ff;
+      border-color: #6bb8ff;
+    }
+
+    .footer {
+      margin-top: 3rem;
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .footer a {
+      color: #4da6ff;
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    .error {
+      color: #ef4444;
+      font-size: 0.9rem;
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 640px) {
+      h1 {
+        font-size: 2.5rem;
+      }
+
+      .emoji {
+        font-size: 3rem;
+      }
+
+      .tagline {
+        font-size: 1.1rem;
+      }
+
+      .regions {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <span class="emoji">🌁</span>
+    <h1>Is It Foggy?</h1>
+    <p class="tagline">Real-time fog detection for San Francisco using computer vision</p>
+
+    <div class="regions" id="regions">
+      <!-- Populated by JavaScript -->
+    </div>
+
+    <div class="links">
+      <a href="/site/api-docs.html" class="btn primary">API Documentation</a>
+      <a href="https://github.com/cannuk/isitfoggyinsanfrancisco" class="btn">View on GitHub</a>
+    </div>
+
+    <div class="footer">
+      <p>Updated hourly via GitHub Actions • Data from live webcams</p>
+    </div>
+  </div>
+
+  <script>
+    const regionInfo = {
+      'golden-gate': {
+        name: 'Golden Gate',
+        description: 'Western SF, Golden Gate Bridge, Marin Headlands'
+      },
+      'downtown': {
+        name: 'Downtown',
+        description: 'Financial District, Transamerica Pyramid, Northeast SF'
+      }
+    };
+
+    const fogEmojis = {
+      'clear': '☀️',
+      'light': '🌤️',
+      'moderate': '🌫️',
+      'heavy': '🌁'
+    };
+
+    async function loadFogData() {
+      const container = document.getElementById('regions');
+
+      // Show loading state
+      container.innerHTML = Object.keys(regionInfo).map(regionId => `
+        <div class="region-card">
+          <div class="region-name">${regionInfo[regionId].name}</div>
+          <div class="region-description">${regionInfo[regionId].description}</div>
+          <div class="fog-status loading">Loading...</div>
+        </div>
+      `).join('');
+
+      try {
+        const response = await fetch('/api/all');
+        if (!response.ok) throw new Error('Failed to fetch data');
+
+        const data = await response.json();
+
+        container.innerHTML = data.map(region => {
+          const info = regionInfo[region.region];
+          const emoji = fogEmojis[region.fogLevel] || '❓';
+          const timestamp = new Date(region.timestamp).toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit'
+          });
+
+          return `
+            <div class="region-card">
+              <div class="region-name">${info.name}</div>
+              <div class="region-description">${info.description}</div>
+              <div class="fog-status ${region.fogLevel}">
+                ${emoji} ${region.fogLevel.charAt(0).toUpperCase() + region.fogLevel.slice(1)}
+              </div>
+              <div class="visibility-score">${region.visibilityScore}% visibility</div>
+              <div class="timestamp">Updated ${timestamp}</div>
+            </div>
+          `;
+        }).join('');
+      } catch (error) {
+        container.innerHTML = `
+          <div class="error">
+            Unable to load current fog data. Please try again later.
+          </div>
+        `;
+        console.error('Error loading fog data:', error);
+      }
+    }
+
+    // Load data on page load
+    loadFogData();
+
+    // Refresh every 5 minutes
+    setInterval(loadFogData, 5 * 60 * 1000);
+  </script>
+</body>
+</html>
