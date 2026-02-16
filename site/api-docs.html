@@ -217,6 +217,86 @@
 ]</code></pre>
     </div>
 
+    <div class="endpoint">
+      <h3>
+        <span class="method">GET</span>
+        <span class="path">/api/history/recent</span>
+      </h3>
+      <p>Get the last 7 days of hourly fog readings across all regions. Perfect for recent trend analysis.</p>
+
+      <h4 style="margin-top: 1.5rem; color: #aaa;">Response</h4>
+      <pre><code>{
+  "readings": [
+    {
+      "timestamp": "2026-02-09T14:00:00.000Z",
+      "regions": {
+        "golden-gate": {
+          "fogLevel": "clear",
+          "visibilityScore": 85,
+          "landmarksVisible": 3,
+          "totalLandmarks": 3
+        },
+        "downtown": {
+          "fogLevel": "light",
+          "visibilityScore": 60,
+          "landmarksVisible": 1,
+          "totalLandmarks": 2
+        }
+      }
+    },
+    ...
+  ]
+}</code></pre>
+      <p style="margin-top: 1rem; color: #888; font-size: 0.9rem;">
+        <strong>Note:</strong> Contains up to 168 hourly readings (7 days × 24 hours). File size ~50-100 KB.
+      </p>
+    </div>
+
+    <div class="endpoint">
+      <h3>
+        <span class="method">GET</span>
+        <span class="path">/api/history/YYYY-MM-DD</span>
+      </h3>
+      <p>Get all hourly readings for a specific date (e.g., <code>/api/history/2026-02-16</code>).</p>
+
+      <h4 style="margin-top: 1.5rem; color: #aaa;">Response</h4>
+      <pre><code>{
+  "readings": [
+    {
+      "timestamp": "2026-02-16T00:00:00.000Z",
+      "regions": {...}
+    },
+    {
+      "timestamp": "2026-02-16T01:00:00.000Z",
+      "regions": {...}
+    },
+    ...
+  ]
+}</code></pre>
+      <p style="margin-top: 1rem; color: #888; font-size: 0.9rem;">
+        <strong>Note:</strong> Contains up to 24 hourly readings for that day. File size ~2-5 KB. Use <code>/api/history/range</code> to see available dates.
+      </p>
+    </div>
+
+    <div class="endpoint">
+      <h3>
+        <span class="method">GET</span>
+        <span class="path">/api/history/range</span>
+      </h3>
+      <p>Get the available date range for historical data. Use this to know what dates you can query.</p>
+
+      <h4 style="margin-top: 1.5rem; color: #aaa;">Response</h4>
+      <pre><code>{
+  "startDate": "2024-02-16",
+  "endDate": "2026-02-16",
+  "totalDays": 730,
+  "lastUpdated": "2026-02-16T11:00:00.000Z"
+}</code></pre>
+      <p style="margin-top: 1rem; color: #888; font-size: 0.9rem;">
+        <strong>Note:</strong> Updated hourly with new data and daily when old data is cleaned up.
+      </p>
+    </div>
+
     <h2>Response Fields</h2>
 
     <div class="response-field">
@@ -271,6 +351,30 @@ fetch('https://isitfoggyinsanfrancisco.com/api/all')
     regions.forEach(r => {
       console.log(`${r.region}: ${r.fogLevel} (${r.visibilityScore}%)`);
     });
+  });
+
+// Fetch last 7 days of data
+fetch('https://isitfoggyinsanfrancisco.com/api/history/recent')
+  .then(res => res.json())
+  .then(data => {
+    const avgVisibility = data.readings.reduce((sum, r) =>
+      sum + r.regions['golden-gate'].visibilityScore, 0) / data.readings.length;
+    console.log(`Avg visibility (7d): ${avgVisibility.toFixed(1)}%`);
+  });
+
+// Fetch specific day
+fetch('https://isitfoggyinsanfrancisco.com/api/history/2026-02-16')
+  .then(res => res.json())
+  .then(data => {
+    console.log(`${data.readings.length} readings for 2026-02-16`);
+  });
+
+// Check available date range
+fetch('https://isitfoggyinsanfrancisco.com/api/history/range')
+  .then(res => res.json())
+  .then(range => {
+    console.log(`Data available from ${range.startDate} to ${range.endDate}`);
+    console.log(`Total days: ${range.totalDays}`);
   });</code></pre>
 
     <p style="margin-top: 3rem; text-align: center; color: #666;">

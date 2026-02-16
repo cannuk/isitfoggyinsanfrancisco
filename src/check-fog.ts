@@ -1,7 +1,11 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { analyzeFogLevel } from "./fog-detector.js";
-import type { VisibilityResult } from "./types.js";
+import type {
+  VisibilityResult,
+  HistoricalData,
+  HistoricalReading,
+} from "./types.js";
 
 const LOCATIONS_DIR = path.resolve(
   import.meta.dirname,
@@ -10,6 +14,8 @@ const LOCATIONS_DIR = path.resolve(
   "locations"
 );
 const API_DIR = path.resolve(import.meta.dirname, "..", "api");
+const HISTORY_DIR = path.join(API_DIR, "history");
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
 interface RegionStatus {
   region: string;
@@ -21,6 +27,142 @@ interface RegionStatus {
     visible: boolean;
     similarity: number;
   }[];
+}
+
+/**
+ * Update historical data with new reading, maintaining daily files and a 2-year rolling window.
+ */
+async function updateHistoricalData(
+  results: VisibilityResult[]
+): Promise<void> {
+  // Create history directory
+  await fs.mkdir(HISTORY_DIR, { recursive: true });
+
+  // Create new reading from current results
+  const timestamp = results[0]?.timestamp || new Date().toISOString();
+  const readingDate = new Date(timestamp);
+  const dateString = readingDate.toISOString().split("T")[0]; // YYYY-MM-DD
+
+  const newReading: HistoricalReading = {
+    timestamp,
+    regions: {},
+  };
+
+  for (const result of results) {
+    newReading.regions[result.region] = {
+      fogLevel: result.fogLevel,
+      visibilityScore: result.visibilityScore,
+      landmarksVisible: result.landmarksVisible,
+      totalLandmarks: result.totalLandmarks,
+    };
+  }
+
+  // Read existing daily file
+  const dailyFile = path.join(HISTORY_DIR, dateString);
+  let dailyData: HistoricalData = { readings: [] };
+  try {
+    const existing = await fs.readFile(dailyFile, "utf-8");
+    dailyData = JSON.parse(existing);
+  } catch (error) {
+    // File doesn't exist yet, start fresh
+  }
+
+  // Append new reading and sort by timestamp
+  dailyData.readings.push(newReading);
+  dailyData.readings.sort(
+    (a, b) =>
+      new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+  );
+
+  // Write updated daily file
+  await fs.writeFile(
+    dailyFile,
+    JSON.stringify(dailyData, null, 2) + "\n"
+  );
+  console.log(`  Wrote api/history/${dateString}`);
+
+  // Generate "recent" file with last 7 days
+  await generateRecentFile();
+
+  // Update historical range metadata
+  await updateHistoricalRange();
+}
+
+/**
+ * Update the historical range metadata showing available data.
+ */
+async function updateHistoricalRange(): Promise<void> {
+  try {
+    const files = await fs.readdir(HISTORY_DIR);
+    const dateFiles = files
+      .filter((f) => /^\d{4}-\d{2}-\d{2}$/.test(f))
+      .sort();
+
+    if (dateFiles.length === 0) {
+      console.log("  No historical data files found");
+      return;
+    }
+
+    const startDate = dateFiles[0];
+    const endDate = dateFiles[dateFiles.length - 1];
+    const totalDays = dateFiles.length;
+
+    const rangeData = {
+      startDate,
+      endDate,
+      totalDays,
+      lastUpdated: new Date().toISOString(),
+    };
+
+    await fs.writeFile(
+      path.join(HISTORY_DIR, "range"),
+      JSON.stringify(rangeData, null, 2) + "\n"
+    );
+    console.log(`  Wrote api/history/range (${startDate} to ${endDate})`);
+  } catch (error) {
+    console.error("  Failed to update historical range:", error);
+  }
+}
+
+/**
+ * Generate a "recent" file with the last 7 days of readings.
+ */
+async function generateRecentFile(): Promise<void> {
+  try {
+    const files = await fs.readdir(HISTORY_DIR);
+    const cutoffTime = Date.now() - SEVEN_DAYS_MS;
+
+    // Get all daily files from last 7 days
+    const recentFiles = files
+      .filter((f) => /^\d{4}-\d{2}-\d{2}$/.test(f))
+      .filter((f) => new Date(f).getTime() >= cutoffTime)
+      .sort();
+
+    // Combine all readings from these files
+    const allReadings: HistoricalReading[] = [];
+    for (const file of recentFiles) {
+      const filePath = path.join(HISTORY_DIR, file);
+      const content = await fs.readFile(filePath, "utf-8");
+      const data: HistoricalData = JSON.parse(content);
+      allReadings.push(...data.readings);
+    }
+
+    // Sort by timestamp
+    allReadings.sort(
+      (a, b) =>
+        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    );
+
+    // Write recent file
+    const recentFile = path.join(HISTORY_DIR, "recent");
+    await fs.writeFile(
+      recentFile,
+      JSON.stringify({ readings: allReadings }, null, 2) + "\n"
+    );
+    console.log(`  Wrote api/history/recent (${allReadings.length} readings)`);
+  } catch (error) {
+    console.error("  Failed to generate recent file:", error);
+  }
 }
 
 /**
@@ -100,6 +242,9 @@ async function main(): Promise<void> {
     JSON.stringify(allRegions, null, 2) + "\n"
   );
   console.log(`  Wrote api/all`);
+
+  // Update historical data
+  await updateHistoricalData(results);
 
   console.log(`\nAPI endpoints updated successfully`);
 }
