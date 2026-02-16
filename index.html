@@ -235,7 +235,7 @@
       `).join('');
 
       try {
-        const response = await fetch('/api/regions');
+        const response = await fetch('/api/regions/index');
         if (!response.ok) throw new Error('Failed to fetch data');
 
         const data = await response.json();
