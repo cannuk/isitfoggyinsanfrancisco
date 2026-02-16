@@ -131,7 +131,7 @@
     <p>Real-time fog detection API for San Francisco. Updated hourly via GitHub Actions.</p>
 
     <h2>Base URL</h2>
-    <pre><code>https://cannuk.github.io/isitfoggyinsanfrancisco/api</code></pre>
+    <pre><code>https://isitfoggyinsanfrancisco.com/api</code></pre>
 
     <h2>Available Regions</h2>
     <div>
@@ -260,12 +260,12 @@
 
     <h2>Example Usage</h2>
     <pre><code>// Fetch Golden Gate region fog status
-fetch('https://cannuk.github.io/isitfoggyinsanfrancisco/api/golden-gate')
+fetch('https://isitfoggyinsanfrancisco.com/api/golden-gate')
   .then(res => res.json())
   .then(data => console.log(data.fogLevel));
 
 // Fetch all regions
-fetch('https://cannuk.github.io/isitfoggyinsanfrancisco/api/all')
+fetch('https://isitfoggyinsanfrancisco.com/api/all')
   .then(res => res.json())
   .then(regions => {
     regions.forEach(r => {
