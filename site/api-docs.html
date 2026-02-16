@@ -146,7 +146,7 @@
     <div class="endpoint">
       <h3>
         <span class="method">GET</span>
-        <span class="path">/api/golden-gate</span>
+        <span class="path">/api/regions/golden-gate</span>
       </h3>
       <p>Get current fog conditions for the Golden Gate / Western SF region.</p>
 
@@ -170,7 +170,7 @@
     <div class="endpoint">
       <h3>
         <span class="method">GET</span>
-        <span class="path">/api/downtown</span>
+        <span class="path">/api/regions/downtown</span>
       </h3>
       <p>Get current fog conditions for the Downtown / Northeast SF region.</p>
 
@@ -194,7 +194,7 @@
     <div class="endpoint">
       <h3>
         <span class="method">GET</span>
-        <span class="path">/api/all</span>
+        <span class="path">/api/regions</span>
       </h3>
       <p>Get current fog conditions for all regions combined.</p>
 
@@ -281,7 +281,7 @@
     <div class="endpoint">
       <h3>
         <span class="method">GET</span>
-        <span class="path">/api/history/range</span>
+        <span class="path">/api/history</span>
       </h3>
       <p>Get the available date range for historical data. Use this to know what dates you can query.</p>
 
@@ -340,12 +340,12 @@
 
     <h2>Example Usage</h2>
     <pre><code>// Fetch Golden Gate region fog status
-fetch('https://isitfoggyinsanfrancisco.com/api/golden-gate')
+fetch('https://isitfoggyinsanfrancisco.com/api/regions/golden-gate')
   .then(res => res.json())
   .then(data => console.log(data.fogLevel));
 
 // Fetch all regions
-fetch('https://isitfoggyinsanfrancisco.com/api/all')
+fetch('https://isitfoggyinsanfrancisco.com/api/regions')
   .then(res => res.json())
   .then(regions => {
     regions.forEach(r => {
@@ -370,7 +370,7 @@ fetch('https://isitfoggyinsanfrancisco.com/api/history/2026-02-16')
   });
 
 // Check available date range
-fetch('https://isitfoggyinsanfrancisco.com/api/history/range')
+fetch('https://isitfoggyinsanfrancisco.com/api/history')
   .then(res => res.json())
   .then(range => {
     console.log(`Data available from ${range.startDate} to ${range.endDate}`);

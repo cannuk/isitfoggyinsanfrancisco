@@ -115,10 +115,10 @@ async function updateHistoricalRange(): Promise<void> {
     };
 
     await fs.writeFile(
-      path.join(HISTORY_DIR, "range"),
+      path.join(HISTORY_DIR, "index"),
       JSON.stringify(rangeData, null, 2) + "\n"
     );
-    console.log(`  Wrote api/history/range (${startDate} to ${endDate})`);
+    console.log(`  Wrote api/history (${startDate} to ${endDate})`);
   } catch (error) {
     console.error("  Failed to update historical range:", error);
   }
@@ -211,7 +211,11 @@ async function main(): Promise<void> {
   // Create API directory
   await fs.mkdir(API_DIR, { recursive: true });
 
-  // Write region-specific endpoints (no .json extension)
+  // Create regions directory
+  const regionsDir = path.join(API_DIR, "regions");
+  await fs.mkdir(regionsDir, { recursive: true });
+
+  // Write individual region endpoints
   for (const [region, result] of regionMap.entries()) {
     const regionStatus: RegionStatus = {
       region,
@@ -222,13 +226,13 @@ async function main(): Promise<void> {
     };
 
     await fs.writeFile(
-      path.join(API_DIR, region),
+      path.join(regionsDir, region),
       JSON.stringify(regionStatus, null, 2) + "\n"
     );
-    console.log(`  Wrote api/${region}`);
+    console.log(`  Wrote api/regions/${region}`);
   }
 
-  // Write combined /all endpoint
+  // Write collection endpoint - all regions
   const allRegions = Array.from(regionMap.values()).map((result) => ({
     region: result.region,
     fogLevel: result.fogLevel,
@@ -238,10 +242,10 @@ async function main(): Promise<void> {
   }));
 
   await fs.writeFile(
-    path.join(API_DIR, "all"),
+    path.join(regionsDir, "index"),
     JSON.stringify(allRegions, null, 2) + "\n"
   );
-  console.log(`  Wrote api/all`);
+  console.log(`  Wrote api/regions (collection)`);
 
   // Update historical data
   await updateHistoricalData(results);

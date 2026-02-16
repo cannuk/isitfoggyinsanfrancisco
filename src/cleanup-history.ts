@@ -32,10 +32,10 @@ async function updateHistoricalRange(): Promise<void> {
     };
 
     await fs.writeFile(
-      path.join(HISTORY_DIR, "range"),
+      path.join(HISTORY_DIR, "index"),
       JSON.stringify(rangeData, null, 2) + "\n"
     );
-    console.log(`\n  Updated range: ${startDate} to ${endDate} (${totalDays} days)`);
+    console.log(`\n  Updated history index: ${startDate} to ${endDate} (${totalDays} days)`);
   } catch (error) {
     console.error("  Failed to update historical range:", error);
   }
