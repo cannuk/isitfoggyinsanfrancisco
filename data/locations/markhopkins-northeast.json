@@ -1,5 +1,6 @@
 {
   "location": "markhopkins-northeast",
+  "region": "downtown",
   "source": {
     "type": "hls",
     "url": "https://proped8eh466.airspace-cdn.cbsivideo.com/weathercams/kpix-mark-hopkins-rooftop-cam-2/s3-hls/master.m3u8"

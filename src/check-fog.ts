@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { analyzeFogLevel } from "./fog-detector.js";
-import type { CurrentStatus, VisibilityResult } from "./types.js";
+import type { VisibilityResult } from "./types.js";
 
 const LOCATIONS_DIR = path.resolve(
   import.meta.dirname,
@@ -11,9 +11,21 @@ const LOCATIONS_DIR = path.resolve(
 );
 const API_DIR = path.resolve(import.meta.dirname, "..", "api");
 
+interface RegionStatus {
+  region: string;
+  fogLevel: string;
+  visibilityScore: number;
+  timestamp: string;
+  landmarks: {
+    name: string;
+    visible: boolean;
+    similarity: number;
+  }[];
+}
+
 /**
  * Main entry point: check fog conditions at all configured locations
- * and write results to the static API directory.
+ * and write results to region-based API endpoints.
  */
 async function main(): Promise<void> {
   // Find all configured locations
@@ -48,25 +60,48 @@ async function main(): Promise<void> {
     }
   }
 
-  // Build current status API response
-  const currentStatuses: CurrentStatus[] = results.map((r) => ({
-    location: r.location,
-    currentStatus: {
-      fogLevel: r.fogLevel,
-      visibilityScore: r.visibilityScore,
-      timestamp: r.timestamp,
-    },
-    prediction: null, // Predictions will be added once we have historical data
+  // Group results by region
+  const regionMap = new Map<string, VisibilityResult>();
+  for (const result of results) {
+    regionMap.set(result.region, result);
+  }
+
+  // Create API directory
+  await fs.mkdir(API_DIR, { recursive: true });
+
+  // Write region-specific endpoints (no .json extension)
+  for (const [region, result] of regionMap.entries()) {
+    const regionStatus: RegionStatus = {
+      region,
+      fogLevel: result.fogLevel,
+      visibilityScore: result.visibilityScore,
+      timestamp: result.timestamp,
+      landmarks: result.landmarkDetails,
+    };
+
+    await fs.writeFile(
+      path.join(API_DIR, region),
+      JSON.stringify(regionStatus, null, 2) + "\n"
+    );
+    console.log(`  Wrote api/${region}`);
+  }
+
+  // Write combined /all endpoint
+  const allRegions = Array.from(regionMap.values()).map((result) => ({
+    region: result.region,
+    fogLevel: result.fogLevel,
+    visibilityScore: result.visibilityScore,
+    timestamp: result.timestamp,
+    landmarks: result.landmarkDetails,
   }));
 
-  // Write API files
-  await fs.mkdir(API_DIR, { recursive: true });
   await fs.writeFile(
-    path.join(API_DIR, "current.json"),
-    JSON.stringify(currentStatuses, null, 2) + "\n"
+    path.join(API_DIR, "all"),
+    JSON.stringify(allRegions, null, 2) + "\n"
   );
+  console.log(`  Wrote api/all`);
 
-  console.log(`\nResults written to api/current.json`);
+  console.log(`\nAPI endpoints updated successfully`);
 }
 
 main().catch((error) => {

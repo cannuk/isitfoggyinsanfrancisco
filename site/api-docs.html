@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Documentation - Is It Foggy In San Francisco?</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      color: #e0e0e0;
+      background: #0a0a0a;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: #ffffff;
+      margin-bottom: 1rem;
+      font-size: 2.5rem;
+    }
+
+    h2 {
+      color: #ffffff;
+      margin-top: 3rem;
+      margin-bottom: 1rem;
+      font-size: 1.8rem;
+      border-bottom: 2px solid #333;
+      padding-bottom: 0.5rem;
+    }
+
+    h3 {
+      color: #cccccc;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      font-size: 1.3rem;
+    }
+
+    p {
+      margin-bottom: 1rem;
+      color: #b0b0b0;
+    }
+
+    .endpoint {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .method {
+      display: inline-block;
+      background: #2a4;
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      margin-right: 0.5rem;
+    }
+
+    .path {
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 1.1rem;
+      color: #4da6ff;
+    }
+
+    pre {
+      background: #0d0d0d;
+      border: 1px solid #333;
+      border-radius: 4px;
+      padding: 1rem;
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+
+    code {
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 0.9rem;
+      color: #99ff99;
+    }
+
+    .response-field {
+      margin-left: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .field-name {
+      color: #ffcc66;
+      font-family: monospace;
+    }
+
+    .field-type {
+      color: #66ccff;
+      font-size: 0.9rem;
+    }
+
+    .region-badge {
+      display: inline-block;
+      background: #333;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      margin: 0.25rem;
+      font-size: 0.9rem;
+    }
+
+    a {
+      color: #4da6ff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌁 API Documentation</h1>
+    <p>Real-time fog detection API for San Francisco. Updated hourly via GitHub Actions.</p>
+
+    <h2>Base URL</h2>
+    <pre><code>https://cannuk.github.io/isitfoggyinsanfrancisco/api</code></pre>
+
+    <h2>Available Regions</h2>
+    <div>
+      <span class="region-badge">golden-gate</span> — Western SF, Golden Gate Bridge, Marin Headlands
+    </div>
+    <div>
+      <span class="region-badge">downtown</span> — Financial District, Transamerica Pyramid, Northeast SF
+    </div>
+
+    <h2>Endpoints</h2>
+
+    <div class="endpoint">
+      <h3>
+        <span class="method">GET</span>
+        <span class="path">/api/golden-gate</span>
+      </h3>
+      <p>Get current fog conditions for the Golden Gate / Western SF region.</p>
+
+      <h4 style="margin-top: 1.5rem; color: #aaa;">Response</h4>
+      <pre><code>{
+  "region": "golden-gate",
+  "fogLevel": "clear" | "light" | "moderate" | "heavy",
+  "visibilityScore": 0-100,
+  "timestamp": "2026-02-16T02:22:51.191Z",
+  "landmarks": [
+    {
+      "name": "gg-bridge-south-tower",
+      "visible": true,
+      "similarity": 0.85
+    },
+    ...
+  ]
+}</code></pre>
+    </div>
+
+    <div class="endpoint">
+      <h3>
+        <span class="method">GET</span>
+        <span class="path">/api/downtown</span>
+      </h3>
+      <p>Get current fog conditions for the Downtown / Northeast SF region.</p>
+
+      <h4 style="margin-top: 1.5rem; color: #aaa;">Response</h4>
+      <pre><code>{
+  "region": "downtown",
+  "fogLevel": "clear" | "light" | "moderate" | "heavy",
+  "visibilityScore": 0-100,
+  "timestamp": "2026-02-16T02:22:48.356Z",
+  "landmarks": [
+    {
+      "name": "transamerica-pyramid",
+      "visible": true,
+      "similarity": 0.73
+    },
+    ...
+  ]
+}</code></pre>
+    </div>
+
+    <div class="endpoint">
+      <h3>
+        <span class="method">GET</span>
+        <span class="path">/api/all</span>
+      </h3>
+      <p>Get current fog conditions for all regions combined.</p>
+
+      <h4 style="margin-top: 1.5rem; color: #aaa;">Response</h4>
+      <pre><code>[
+  {
+    "region": "golden-gate",
+    "fogLevel": "clear",
+    "visibilityScore": 67,
+    "timestamp": "2026-02-16T02:22:51.191Z",
+    "landmarks": [...]
+  },
+  {
+    "region": "downtown",
+    "fogLevel": "light",
+    "visibilityScore": 50,
+    "timestamp": "2026-02-16T02:22:48.356Z",
+    "landmarks": [...]
+  }
+]</code></pre>
+    </div>
+
+    <h2>Response Fields</h2>
+
+    <div class="response-field">
+      <span class="field-name">region</span>
+      <span class="field-type">string</span> — Region identifier
+    </div>
+
+    <div class="response-field">
+      <span class="field-name">fogLevel</span>
+      <span class="field-type">"clear" | "light" | "moderate" | "heavy"</span> — Categorical fog assessment
+    </div>
+
+    <div class="response-field">
+      <span class="field-name">visibilityScore</span>
+      <span class="field-type">number (0-100)</span> — Percentage of landmarks visible
+    </div>
+
+    <div class="response-field">
+      <span class="field-name">timestamp</span>
+      <span class="field-type">string (ISO 8601)</span> — When this reading was taken
+    </div>
+
+    <div class="response-field">
+      <span class="field-name">landmarks</span>
+      <span class="field-type">array</span> — Per-landmark visibility details
+    </div>
+
+    <h2>Fog Level Thresholds</h2>
+    <ul style="margin-left: 2rem; color: #b0b0b0;">
+      <li><strong>clear</strong>: 80%+ landmarks visible</li>
+      <li><strong>light</strong>: 50-79% landmarks visible</li>
+      <li><strong>moderate</strong>: 20-49% landmarks visible</li>
+      <li><strong>heavy</strong>: &lt;20% landmarks visible</li>
+    </ul>
+
+    <h2>Update Frequency</h2>
+    <p>Data is updated hourly via GitHub Actions cron schedule.</p>
+
+    <h2>CORS</h2>
+    <p>GitHub Pages serves all files with CORS headers enabled, so you can fetch from any origin.</p>
+
+    <h2>Example Usage</h2>
+    <pre><code>// Fetch Golden Gate region fog status
+fetch('https://cannuk.github.io/isitfoggyinsanfrancisco/api/golden-gate')
+  .then(res => res.json())
+  .then(data => console.log(data.fogLevel));
+
+// Fetch all regions
+fetch('https://cannuk.github.io/isitfoggyinsanfrancisco/api/all')
+  .then(res => res.json())
+  .then(regions => {
+    regions.forEach(r => {
+      console.log(`${r.region}: ${r.fogLevel} (${r.visibilityScore}%)`);
+    });
+  });</code></pre>
+
+    <p style="margin-top: 3rem; text-align: center; color: #666;">
+      <a href="https://github.com/cannuk/isitfoggyinsanfrancisco">View on GitHub</a>
+    </p>
+  </div>
+</body>
+</html>

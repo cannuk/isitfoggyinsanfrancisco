@@ -16,12 +16,14 @@ export type WebcamSource =
 
 export interface LocationConfig {
   location: string;
+  region: string; // Geographic region ID (e.g., "golden-gate", "downtown")
   source: WebcamSource;
   landmarks: LandmarkTemplate[];
 }
 
 export interface VisibilityResult {
   location: string;
+  region: string;
   landmarksVisible: number;
   totalLandmarks: number;
   visibilityScore: number; // 0-100
