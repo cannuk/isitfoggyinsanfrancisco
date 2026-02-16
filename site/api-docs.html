@@ -194,7 +194,7 @@
     <div class="endpoint">
       <h3>
         <span class="method">GET</span>
-        <span class="path">/api/regions</span>
+        <span class="path">/api/regions/index</span>
       </h3>
       <p>Get current fog conditions for all regions combined.</p>
 
@@ -307,7 +307,7 @@ fetch('https://isitfoggyinsanfrancisco.com/api/regions/golden-gate')
   .then(data => console.log(data.fogLevel));
 
 // Fetch all regions
-fetch('https://isitfoggyinsanfrancisco.com/api/regions')
+fetch('https://isitfoggyinsanfrancisco.com/api/regions/index')
   .then(res => res.json())
   .then(regions => {
     regions.forEach(r => {

@@ -197,7 +197,7 @@ async function main(): Promise<void> {
     path.join(regionsDir, "index"),
     JSON.stringify(allRegions, null, 2) + "\n"
   );
-  console.log(`  Wrote api/regions (collection)`);
+  console.log(`  Wrote api/regions/index (collection)`);
 
   // Update historical data
   await updateHistoricalData(results);

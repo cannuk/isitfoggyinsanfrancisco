@@ -164,6 +164,127 @@
       margin-top: 1rem;
     }
 
+    .trend-section {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .trend-section h2 {
+      font-size: 1.5rem;
+      color: #ffffff;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+      text-align: left;
+    }
+
+    .trend-region {
+      margin-bottom: 1.5rem;
+    }
+
+    .trend-region:last-child {
+      margin-bottom: 0;
+    }
+
+    .trend-region-name {
+      font-size: 0.9rem;
+      color: #aaa;
+      margin-bottom: 0.5rem;
+      text-align: left;
+    }
+
+    .timeline {
+      display: flex;
+      gap: 2px;
+      height: 40px;
+      background: #0a0a0a;
+      border-radius: 4px;
+      padding: 2px;
+      position: relative;
+    }
+
+    .hour-block {
+      flex: 1;
+      border-radius: 2px;
+      transition: transform 0.2s, opacity 0.2s;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .hour-block:hover {
+      transform: scaleY(1.1);
+      opacity: 0.9;
+    }
+
+    .hour-block.clear { background: #4ade80; }
+    .hour-block.light { background: #fbbf24; }
+    .hour-block.moderate { background: #fb923c; }
+    .hour-block.heavy { background: #ef4444; }
+    .hour-block.no-data { background: #333; }
+
+    .hour-tooltip {
+      position: absolute;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2a2a2a;
+      color: #fff;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+      z-index: 10;
+      border: 1px solid #444;
+    }
+
+    .hour-block:hover .hour-tooltip {
+      opacity: 1;
+    }
+
+    .timeline-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      color: #666;
+    }
+
+    .trend-loading {
+      color: #666;
+      font-size: 0.9rem;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .legend {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #333;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: #aaa;
+    }
+
+    .legend-color {
+      width: 20px;
+      height: 20px;
+      border-radius: 3px;
+    }
+
     @media (max-width: 640px) {
       h1 {
         font-size: 2.5rem;
@@ -191,6 +312,13 @@
 
     <div class="regions" id="regions">
       <!-- Populated by JavaScript -->
+    </div>
+
+    <div class="trend-section">
+      <h2>Today's Fog Trend</h2>
+      <div id="trend-container">
+        <div class="trend-loading">Loading today's trend...</div>
+      </div>
     </div>
 
     <div class="links">
@@ -235,7 +363,7 @@
       `).join('');
 
       try {
-        const response = await fetch('/api/regions');
+        const response = await fetch('/api/regions/index');
         if (!response.ok) throw new Error('Failed to fetch data');
 
         const data = await response.json();
@@ -270,11 +398,100 @@
       }
     }
 
+    async function loadTodayTrend() {
+      const container = document.getElementById('trend-container');
+      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+
+      try {
+        const response = await fetch(`/api/history/${today}`);
+        if (!response.ok) {
+          container.innerHTML = '<div class="trend-loading">No historical data available for today yet.</div>';
+          return;
+        }
+
+        const data = await response.json();
+
+        // Build timeline for each region
+        const regions = ['golden-gate', 'downtown'];
+        let html = '';
+
+        for (const regionId of regions) {
+          const info = regionInfo[regionId];
+          html += `
+            <div class="trend-region">
+              <div class="trend-region-name">${info.name}</div>
+              <div class="timeline">
+                ${data.hours.map((reading, hour) => {
+                  if (!reading || !reading.regions[regionId]) {
+                    return `<div class="hour-block no-data"><div class="hour-tooltip">${hour}:00 - No data</div></div>`;
+                  }
+                  const region = reading.regions[regionId];
+                  const fogLevel = region.fogLevel;
+                  const emoji = fogEmojis[fogLevel] || '❓';
+                  return `
+                    <div class="hour-block ${fogLevel}">
+                      <div class="hour-tooltip">
+                        ${hour}:00<br>
+                        ${emoji} ${fogLevel}<br>
+                        ${region.visibilityScore}% visibility
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+              <div class="timeline-labels">
+                <span>12am</span>
+                <span>6am</span>
+                <span>12pm</span>
+                <span>6pm</span>
+                <span>11pm</span>
+              </div>
+            </div>
+          `;
+        }
+
+        // Add legend
+        html += `
+          <div class="legend">
+            <div class="legend-item">
+              <div class="legend-color clear"></div>
+              <span>Clear</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color light"></div>
+              <span>Light</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color moderate"></div>
+              <span>Moderate</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color heavy"></div>
+              <span>Heavy</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color no-data"></div>
+              <span>No Data</span>
+            </div>
+          </div>
+        `;
+
+        container.innerHTML = html;
+      } catch (error) {
+        container.innerHTML = '<div class="trend-loading">Unable to load trend data.</div>';
+        console.error('Error loading trend data:', error);
+      }
+    }
+
     // Load data on page load
     loadFogData();
+    loadTodayTrend();
 
     // Refresh every 5 minutes
-    setInterval(loadFogData, 5 * 60 * 1000);
+    setInterval(() => {
+      loadFogData();
+      loadTodayTrend();
+    }, 5 * 60 * 1000);
   </script>
 </body>
 </html>
