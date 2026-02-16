@@ -65,3 +65,19 @@ export interface CurrentStatus {
   };
   prediction: Prediction | null;
 }
+
+export interface HistoricalReading {
+  timestamp: string;
+  regions: {
+    [regionId: string]: {
+      fogLevel: FogLevel;
+      visibilityScore: number;
+      landmarksVisible: number;
+      totalLandmarks: number;
+    };
+  };
+}
+
+export interface HistoricalData {
+  hours: (HistoricalReading | null)[]; // 24-item array (indices 0-23), null for missing data
+}

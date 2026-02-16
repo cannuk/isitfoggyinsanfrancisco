@@ -1,7 +1,11 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { analyzeFogLevel } from "./fog-detector.js";
-import type { VisibilityResult } from "./types.js";
+import type {
+  VisibilityResult,
+  HistoricalData,
+  HistoricalReading,
+} from "./types.js";
 
 const LOCATIONS_DIR = path.resolve(
   import.meta.dirname,
@@ -10,6 +14,7 @@ const LOCATIONS_DIR = path.resolve(
   "locations"
 );
 const API_DIR = path.resolve(import.meta.dirname, "..", "api");
+const HISTORY_DIR = path.join(API_DIR, "history");
 
 interface RegionStatus {
   region: string;
@@ -21,6 +26,95 @@ interface RegionStatus {
     visible: boolean;
     similarity: number;
   }[];
+}
+
+/**
+ * Update historical data with new reading, maintaining daily files and a 2-year rolling window.
+ */
+async function updateHistoricalData(
+  results: VisibilityResult[]
+): Promise<void> {
+  // Create history directory
+  await fs.mkdir(HISTORY_DIR, { recursive: true });
+
+  // Create new reading from current results
+  const timestamp = results[0]?.timestamp || new Date().toISOString();
+  const readingDate = new Date(timestamp);
+  const dateString = readingDate.toISOString().split("T")[0]; // YYYY-MM-DD
+
+  const newReading: HistoricalReading = {
+    timestamp,
+    regions: {},
+  };
+
+  for (const result of results) {
+    newReading.regions[result.region] = {
+      fogLevel: result.fogLevel,
+      visibilityScore: result.visibilityScore,
+      landmarksVisible: result.landmarksVisible,
+      totalLandmarks: result.totalLandmarks,
+    };
+  }
+
+  // Read existing daily file or create 24-hour array
+  const dailyFile = path.join(HISTORY_DIR, dateString);
+  let dailyData: HistoricalData = { hours: Array(24).fill(null) };
+  try {
+    const existing = await fs.readFile(dailyFile, "utf-8");
+    dailyData = JSON.parse(existing);
+  } catch (error) {
+    // File doesn't exist yet, start fresh with 24-item array
+  }
+
+  // Insert reading at the correct hour index (0-23)
+  const hour = readingDate.getUTCHours();
+  dailyData.hours[hour] = newReading;
+
+  // Write updated daily file
+  await fs.writeFile(
+    dailyFile,
+    JSON.stringify(dailyData, null, 2) + "\n"
+  );
+  console.log(`  Wrote api/history/${dateString}`);
+
+  // Update historical range metadata
+  await updateHistoricalRange();
+}
+
+/**
+ * Update the historical range metadata showing available data.
+ */
+async function updateHistoricalRange(): Promise<void> {
+  try {
+    const files = await fs.readdir(HISTORY_DIR);
+    const dateFiles = files
+      .filter((f) => /^\d{4}-\d{2}-\d{2}$/.test(f))
+      .sort();
+
+    if (dateFiles.length === 0) {
+      console.log("  No historical data files found");
+      return;
+    }
+
+    const startDate = dateFiles[0];
+    const endDate = dateFiles[dateFiles.length - 1];
+    const totalDays = dateFiles.length;
+
+    const rangeData = {
+      startDate,
+      endDate,
+      totalDays,
+      lastUpdated: new Date().toISOString(),
+    };
+
+    await fs.writeFile(
+      path.join(HISTORY_DIR, "index"),
+      JSON.stringify(rangeData, null, 2) + "\n"
+    );
+    console.log(`  Wrote api/history (${startDate} to ${endDate})`);
+  } catch (error) {
+    console.error("  Failed to update historical range:", error);
+  }
 }
 
 /**
@@ -69,7 +163,11 @@ async function main(): Promise<void> {
   // Create API directory
   await fs.mkdir(API_DIR, { recursive: true });
 
-  // Write region-specific endpoints (no .json extension)
+  // Create regions directory
+  const regionsDir = path.join(API_DIR, "regions");
+  await fs.mkdir(regionsDir, { recursive: true });
+
+  // Write individual region endpoints
   for (const [region, result] of regionMap.entries()) {
     const regionStatus: RegionStatus = {
       region,
@@ -80,13 +178,13 @@ async function main(): Promise<void> {
     };
 
     await fs.writeFile(
-      path.join(API_DIR, region),
+      path.join(regionsDir, region),
       JSON.stringify(regionStatus, null, 2) + "\n"
     );
-    console.log(`  Wrote api/${region}`);
+    console.log(`  Wrote api/regions/${region}`);
   }
 
-  // Write combined /all endpoint
+  // Write collection endpoint - all regions
   const allRegions = Array.from(regionMap.values()).map((result) => ({
     region: result.region,
     fogLevel: result.fogLevel,
@@ -96,10 +194,13 @@ async function main(): Promise<void> {
   }));
 
   await fs.writeFile(
-    path.join(API_DIR, "all"),
+    path.join(regionsDir, "index"),
     JSON.stringify(allRegions, null, 2) + "\n"
   );
-  console.log(`  Wrote api/all`);
+  console.log(`  Wrote api/regions (collection)`);
+
+  // Update historical data
+  await updateHistoricalData(results);
 
   console.log(`\nAPI endpoints updated successfully`);
 }

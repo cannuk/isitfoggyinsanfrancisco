@@ -7,7 +7,8 @@
     "build": "tsc",
     "test": "vitest run",
     "check": "tsx src/check-fog.ts",
-    "setup": "tsx src/setup-templates.ts"
+    "setup": "tsx src/setup-templates.ts",
+    "cleanup": "tsx src/cleanup-history.ts"
   },
   "keywords": [
     "fog",
