@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Is It Foggy in San Francisco?</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #1a1a2e;
+      color: #e0e0e0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    #status {
+      font-size: 1.5rem;
+      color: #aaa;
+    }
+    .location {
+      background: #16213e;
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      margin: 1rem;
+      min-width: 280px;
+      text-align: center;
+    }
+    .location h2 { font-size: 1.2rem; margin-bottom: 0.5rem; }
+    .fog-level { font-size: 2rem; font-weight: bold; }
+    .fog-level.clear { color: #4ade80; }
+    .fog-level.light { color: #facc15; }
+    .fog-level.moderate { color: #fb923c; }
+    .fog-level.heavy { color: #f87171; }
+    .timestamp { color: #666; font-size: 0.85rem; margin-top: 0.5rem; }
+    #locations { display: flex; flex-wrap: wrap; justify-content: center; }
+    footer { margin-top: 2rem; color: #555; font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+  <h1>Is It Foggy in San Francisco?</h1>
+  <div id="status">Loading...</div>
+  <div id="locations"></div>
+  <footer>Data updated hourly via webcam analysis</footer>
+
+  <script>
+    async function loadFogData() {
+      try {
+        const res = await fetch('/api/current.json');
+        if (!res.ok) throw new Error('No data yet');
+        const data = await res.json();
+
+        if (data.length === 0) {
+          document.getElementById('status').textContent = 'No locations configured yet.';
+          return;
+        }
+
+        document.getElementById('status').textContent = '';
+        const container = document.getElementById('locations');
+
+        for (const loc of data) {
+          const div = document.createElement('div');
+          div.className = 'location';
+          const time = new Date(loc.currentStatus.timestamp).toLocaleTimeString();
+          div.innerHTML = `
+            <h2>${loc.location}</h2>
+            <div class="fog-level ${loc.currentStatus.fogLevel}">
+              ${loc.currentStatus.fogLevel.toUpperCase()}
+            </div>
+            <div class="timestamp">Updated: ${time}</div>
+          `;
+          container.appendChild(div);
+        }
+      } catch {
+        document.getElementById('status').textContent = 'No fog data available yet. Check back soon!';
+      }
+    }
+    loadFogData();
+  </script>
+</body>
+</html>
