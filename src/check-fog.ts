@@ -57,22 +57,19 @@ async function updateHistoricalData(
     };
   }
 
-  // Read existing daily file
+  // Read existing daily file or create 24-hour array
   const dailyFile = path.join(HISTORY_DIR, dateString);
-  let dailyData: HistoricalData = { readings: [] };
+  let dailyData: HistoricalData = { readings: Array(24).fill(null) };
   try {
     const existing = await fs.readFile(dailyFile, "utf-8");
     dailyData = JSON.parse(existing);
   } catch (error) {
-    // File doesn't exist yet, start fresh
+    // File doesn't exist yet, start fresh with 24-item array
   }
 
-  // Append new reading and sort by timestamp
-  dailyData.readings.push(newReading);
-  dailyData.readings.sort(
-    (a, b) =>
-      new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-  );
+  // Insert reading at the correct hour index (0-23)
+  const hour = readingDate.getUTCHours();
+  dailyData.readings[hour] = newReading;
 
   // Write updated daily file
   await fs.writeFile(
@@ -138,13 +135,17 @@ async function generateRecentFile(): Promise<void> {
       .filter((f) => new Date(f).getTime() >= cutoffTime)
       .sort();
 
-    // Combine all readings from these files
+    // Combine all readings from these files, filtering out nulls
     const allReadings: HistoricalReading[] = [];
     for (const file of recentFiles) {
       const filePath = path.join(HISTORY_DIR, file);
       const content = await fs.readFile(filePath, "utf-8");
       const data: HistoricalData = JSON.parse(content);
-      allReadings.push(...data.readings);
+      // Filter out null entries (hours with no data)
+      const validReadings = data.readings.filter(
+        (r): r is HistoricalReading => r !== null
+      );
+      allReadings.push(...validReadings);
     }
 
     // Sort by timestamp
