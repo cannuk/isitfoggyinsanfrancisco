@@ -1,5 +1,6 @@
 {
   "location": "salesforce-north",
+  "region": "golden-gate",
   "source": {
     "type": "hls",
     "url": "https://prope8aah39g.airspace-cdn.cbsivideo.com/weathercams/kpix-salesforce-3/s3-hls/master.m3u8"

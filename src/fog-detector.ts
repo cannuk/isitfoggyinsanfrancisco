@@ -108,6 +108,7 @@ export async function analyzeFogLevel(
 
   return {
     location: config.location,
+    region: config.region,
     landmarksVisible: visibleCount,
     totalLandmarks: config.landmarks.length,
     visibilityScore: Math.round(visibilityScore),
