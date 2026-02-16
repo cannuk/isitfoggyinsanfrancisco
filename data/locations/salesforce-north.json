@@ -14,7 +14,7 @@
         "width": 80,
         "height": 160
       },
-      "threshold": 0.7
+      "threshold": 0.55
     },
     {
       "name": "marin-headlands",
@@ -36,7 +36,7 @@
         "width": 200,
         "height": 130
       },
-      "threshold": 0.7
+      "threshold": 0.45
     }
   ]
 }
