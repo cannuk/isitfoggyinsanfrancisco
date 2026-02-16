@@ -220,41 +220,6 @@
     <div class="endpoint">
       <h3>
         <span class="method">GET</span>
-        <span class="path">/api/history/recent</span>
-      </h3>
-      <p>Get the last 7 days of hourly fog readings across all regions. Perfect for recent trend analysis.</p>
-
-      <h4 style="margin-top: 1.5rem; color: #aaa;">Response</h4>
-      <pre><code>{
-  "readings": [
-    {
-      "timestamp": "2026-02-09T14:00:00.000Z",
-      "regions": {
-        "golden-gate": {
-          "fogLevel": "clear",
-          "visibilityScore": 85,
-          "landmarksVisible": 3,
-          "totalLandmarks": 3
-        },
-        "downtown": {
-          "fogLevel": "light",
-          "visibilityScore": 60,
-          "landmarksVisible": 1,
-          "totalLandmarks": 2
-        }
-      }
-    },
-    ...
-  ]
-}</code></pre>
-      <p style="margin-top: 1rem; color: #888; font-size: 0.9rem;">
-        <strong>Note:</strong> Contains up to 168 hourly readings (7 days × 24 hours). File size ~50-100 KB.
-      </p>
-    </div>
-
-    <div class="endpoint">
-      <h3>
-        <span class="method">GET</span>
         <span class="path">/api/history/YYYY-MM-DD</span>
       </h3>
       <p>Get all hourly readings for a specific date (e.g., <code>/api/history/2026-02-16</code>).</p>
@@ -350,14 +315,17 @@ fetch('https://isitfoggyinsanfrancisco.com/api/regions')
     });
   });
 
-// Fetch last 7 days of data
-fetch('https://isitfoggyinsanfrancisco.com/api/history/recent')
-  .then(res => res.json())
-  .then(data => {
-    const avgVisibility = data.readings.reduce((sum, r) =>
-      sum + r.regions['golden-gate'].visibilityScore, 0) / data.readings.length;
-    console.log(`Avg visibility (7d): ${avgVisibility.toFixed(1)}%`);
-  });
+// Fetch multiple days (e.g., last 3 days)
+const dates = ['2026-02-14', '2026-02-15', '2026-02-16'];
+Promise.all(dates.map(d =>
+  fetch(`https://isitfoggyinsanfrancisco.com/api/history/${d}`).then(r => r.json())
+)).then(days => {
+  // Flatten all hours, filter nulls
+  const allHours = days.flatMap(day => day.hours.filter(h => h !== null));
+  const avgVisibility = allHours.reduce((sum, h) =>
+    sum + h.regions['golden-gate'].visibilityScore, 0) / allHours.length;
+  console.log(`Avg visibility: ${avgVisibility.toFixed(1)}%`);
+});
 
 // Fetch specific day and access by hour
 fetch('https://isitfoggyinsanfrancisco.com/api/history/2026-02-16')

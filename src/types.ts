@@ -81,7 +81,3 @@ export interface HistoricalReading {
 export interface HistoricalData {
   hours: (HistoricalReading | null)[]; // 24-item array (indices 0-23), null for missing data
 }
-
-export interface HistoricalRecent {
-  readings: HistoricalReading[]; // Array for chronological iteration across multiple days
-}

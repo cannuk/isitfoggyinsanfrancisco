@@ -15,7 +15,6 @@ const LOCATIONS_DIR = path.resolve(
 );
 const API_DIR = path.resolve(import.meta.dirname, "..", "api");
 const HISTORY_DIR = path.join(API_DIR, "history");
-const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
 interface RegionStatus {
   region: string;
@@ -78,9 +77,6 @@ async function updateHistoricalData(
   );
   console.log(`  Wrote api/history/${dateString}`);
 
-  // Generate "recent" file with last 7 days
-  await generateRecentFile();
-
   // Update historical range metadata
   await updateHistoricalRange();
 }
@@ -118,51 +114,6 @@ async function updateHistoricalRange(): Promise<void> {
     console.log(`  Wrote api/history (${startDate} to ${endDate})`);
   } catch (error) {
     console.error("  Failed to update historical range:", error);
-  }
-}
-
-/**
- * Generate a "recent" file with the last 7 days of readings.
- */
-async function generateRecentFile(): Promise<void> {
-  try {
-    const files = await fs.readdir(HISTORY_DIR);
-    const cutoffTime = Date.now() - SEVEN_DAYS_MS;
-
-    // Get all daily files from last 7 days
-    const recentFiles = files
-      .filter((f) => /^\d{4}-\d{2}-\d{2}$/.test(f))
-      .filter((f) => new Date(f).getTime() >= cutoffTime)
-      .sort();
-
-    // Combine all readings from these files, filtering out nulls
-    const allReadings: HistoricalReading[] = [];
-    for (const file of recentFiles) {
-      const filePath = path.join(HISTORY_DIR, file);
-      const content = await fs.readFile(filePath, "utf-8");
-      const data: HistoricalData = JSON.parse(content);
-      // Filter out null entries (hours with no data)
-      const validReadings = data.hours.filter(
-        (r): r is HistoricalReading => r !== null
-      );
-      allReadings.push(...validReadings);
-    }
-
-    // Sort by timestamp
-    allReadings.sort(
-      (a, b) =>
-        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-    );
-
-    // Write recent file
-    const recentFile = path.join(HISTORY_DIR, "recent");
-    await fs.writeFile(
-      recentFile,
-      JSON.stringify({ readings: allReadings }, null, 2) + "\n"
-    );
-    console.log(`  Wrote api/history/recent (${allReadings.length} readings)`);
-  } catch (error) {
-    console.error("  Failed to generate recent file:", error);
   }
 }
 
