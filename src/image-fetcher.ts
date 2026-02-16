@@ -4,6 +4,11 @@ import type { WebcamSource } from "./types.js";
 
 const execFileAsync = promisify(execFile);
 
+// Use FFMPEG_PATH env var if set, otherwise try common locations
+const FFMPEG_PATH =
+  process.env.FFMPEG_PATH ||
+  (process.platform === "darwin" ? "/opt/homebrew/bin/ffmpeg" : "ffmpeg");
+
 /**
  * Fetch a webcam image as a Buffer, supporting both direct image URLs
  * and HLS video streams (via ffmpeg snapshot).
@@ -32,7 +37,7 @@ async function fetchDirectImage(url: string): Promise<Buffer> {
  */
 async function fetchHlsSnapshot(url: string): Promise<Buffer> {
   const { stdout } = await execFileAsync(
-    "ffmpeg",
+    FFMPEG_PATH,
     [
       "-i", url,
       "-frames:v", "1",

@@ -16,3 +16,6 @@ Thumbs.db
 
 # Sharp cache
 .cache/
+
+# Local snapshots (working files)
+snapshots/

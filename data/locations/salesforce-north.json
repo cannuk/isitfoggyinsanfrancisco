@@ -1,0 +1,42 @@
+{
+  "location": "salesforce-north",
+  "source": {
+    "type": "hls",
+    "url": "https://prope8aah39g.airspace-cdn.cbsivideo.com/weathercams/kpix-salesforce-3/s3-hls/master.m3u8"
+  },
+  "landmarks": [
+    {
+      "name": "gg-bridge-south-tower",
+      "templatePath": "templates/salesforce-north/gg-bridge-south-tower.png",
+      "region": {
+        "x": 400,
+        "y": 260,
+        "width": 80,
+        "height": 160
+      },
+      "threshold": 0.7
+    },
+    {
+      "name": "marin-headlands",
+      "templatePath": "templates/salesforce-north/marin-headlands.png",
+      "region": {
+        "x": 550,
+        "y": 250,
+        "width": 400,
+        "height": 100
+      },
+      "threshold": 0.7
+    },
+    {
+      "name": "palace-of-fine-arts",
+      "templatePath": "templates/salesforce-north/palace-of-fine-arts.png",
+      "region": {
+        "x": 100,
+        "y": 520,
+        "width": 200,
+        "height": 130
+      },
+      "threshold": 0.7
+    }
+  ]
+}

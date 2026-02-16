@@ -1,0 +1,31 @@
+{
+  "location": "markhopkins-northeast",
+  "source": {
+    "type": "hls",
+    "url": "https://proped8eh466.airspace-cdn.cbsivideo.com/weathercams/kpix-mark-hopkins-rooftop-cam-2/s3-hls/master.m3u8"
+  },
+  "landmarks": [
+    {
+      "name": "transamerica-pyramid",
+      "templatePath": "templates/markhopkins-northeast/transamerica-pyramid.png",
+      "region": {
+        "x": 630,
+        "y": 60,
+        "width": 80,
+        "height": 360
+      },
+      "threshold": 0.7
+    },
+    {
+      "name": "treasure-island",
+      "templatePath": "templates/markhopkins-northeast/treasure-island.png",
+      "region": {
+        "x": 100,
+        "y": 270,
+        "width": 300,
+        "height": 120
+      },
+      "threshold": 0.7
+    }
+  ]
+}
