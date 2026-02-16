@@ -8,9 +8,7 @@
     "test": "vitest run",
     "check": "tsx src/check-fog.ts",
     "setup": "tsx src/setup-templates.ts",
-    "cleanup": "tsx src/cleanup-history.ts",
-    "migrate": "tsx src/migrate-api-structure.ts",
-    "extract-history": "tsx src/extract-git-history.ts"
+    "cleanup": "tsx src/cleanup-history.ts"
   },
   "keywords": [
     "fog",
