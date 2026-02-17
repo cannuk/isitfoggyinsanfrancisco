@@ -401,42 +401,57 @@
     async function loadTodayTrend() {
       const container = document.getElementById('trend-container');
       const now = new Date();
-      const todayStr = now.toISOString().split('T')[0];
-      const yesterdayStr = new Date(now - 86400000).toISOString().split('T')[0];
+
+      // Get today's date string in SF timezone (handles DST automatically)
+      const sfDateStr = now.toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
+
+      // Compute SF UTC offset by comparing SF local hour to UTC hour
+      // (e.g. -8 for PST, -7 for PDT)
+      const sfLocalHour = parseInt(
+        now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', hour12: false })
+      ) % 24;
+      let utcOffset = sfLocalHour - now.getUTCHours();
+      if (utcOffset > 12) utcOffset -= 24;
+      if (utcOffset < -12) utcOffset += 24;
+
+      // An SF calendar day starts at UTC hour (-utcOffset) e.g. 08:00 UTC for PST.
+      // SF hours 0...(23-utcOffset) map to the UTC file for sfDateStr.
+      // SF hours (24+utcOffset)...23 map to the UTC file for sfDateStr + 1 day.
+      const utcStartHour = -utcOffset; // e.g. 8 for PST
+      const nextDateStr = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+        .toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
 
       try {
-        // Fetch today's data first
-        let data = null;
-        let displayDate = todayStr;
+        const [sfRes, nextRes] = await Promise.all([
+          fetch(`/api/history/${sfDateStr}`),
+          fetch(`/api/history/${nextDateStr}`)
+        ]);
 
-        const todayRes = await fetch(`/api/history/${todayStr}`);
-        if (todayRes.ok) {
-          const todayData = await todayRes.json();
-          const readingCount = todayData.hours.filter(h => h !== null).length;
-          // If today has enough readings, use it; otherwise fall back to yesterday
-          if (readingCount >= 3) {
-            data = todayData;
-          }
-        }
+        const sfData = sfRes.ok ? await sfRes.json() : { hours: Array(24).fill(null) };
+        const nextData = nextRes.ok ? await nextRes.json() : { hours: Array(24).fill(null) };
 
-        if (!data) {
-          const yesterdayRes = await fetch(`/api/history/${yesterdayStr}`);
-          if (yesterdayRes.ok) {
-            data = await yesterdayRes.json();
-            displayDate = yesterdayStr;
-          }
-        }
+        // Build 24 SF-local-hour slots by stitching the two UTC files
+        const sfHours = Array.from({ length: 24 }, (_, sfHour) => {
+          const utcIndex = sfHour + utcStartHour;
+          return utcIndex >= 24
+            ? nextData.hours[utcIndex - 24]
+            : sfData.hours[utcIndex];
+        });
 
-        if (!data) {
+        if (!sfHours.some(h => h !== null)) {
           container.innerHTML = '<div class="trend-loading">No historical data available yet.</div>';
           return;
         }
 
-        // Update section title with the date being shown
-        const label = displayDate === todayStr ? "Today's" : new Date(displayDate + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + "'s";
-        document.getElementById('trend-title').textContent = `${label} Fog Trend`;
+        // Format SF date for display
+        const sfDateDisplay = new Date(sfDateStr + 'T12:00:00Z').toLocaleDateString('en-US', {
+          weekday: 'long', month: 'long', day: 'numeric'
+        });
+        document.getElementById('trend-title').textContent = `Fog Trend · ${sfDateDisplay}`;
 
-        // Build timeline for each region
+        // Helper: format SF hour as 12-hour label
+        const hourLabel = h => h === 0 ? '12am' : h < 12 ? `${h}am` : h === 12 ? '12pm' : `${h - 12}pm`;
+
         const regions = ['golden-gate', 'downtown'];
         let html = '';
 
@@ -446,9 +461,9 @@
             <div class="trend-region">
               <div class="trend-region-name">${info.name}</div>
               <div class="timeline">
-                ${data.hours.map((reading, hour) => {
+                ${sfHours.map((reading, sfHour) => {
                   if (!reading || !reading.regions[regionId]) {
-                    return `<div class="hour-block no-data"><div class="hour-tooltip">${hour}:00 - No data</div></div>`;
+                    return `<div class="hour-block no-data"><div class="hour-tooltip">${hourLabel(sfHour)} · No data</div></div>`;
                   }
                   const region = reading.regions[regionId];
                   const fogLevel = region.fogLevel;
@@ -456,7 +471,7 @@
                   return `
                     <div class="hour-block ${fogLevel}">
                       <div class="hour-tooltip">
-                        ${hour}:00<br>
+                        ${hourLabel(sfHour)}<br>
                         ${emoji} ${fogLevel}<br>
                         ${region.visibilityScore}% visibility
                       </div>
@@ -475,29 +490,13 @@
           `;
         }
 
-        // Add legend
         html += `
           <div class="legend">
-            <div class="legend-item">
-              <div class="legend-color clear"></div>
-              <span>Clear</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-color light"></div>
-              <span>Light</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-color moderate"></div>
-              <span>Moderate</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-color heavy"></div>
-              <span>Heavy</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-color no-data"></div>
-              <span>No Data</span>
-            </div>
+            <div class="legend-item"><div class="legend-color clear"></div><span>Clear</span></div>
+            <div class="legend-item"><div class="legend-color light"></div><span>Light</span></div>
+            <div class="legend-item"><div class="legend-color moderate"></div><span>Moderate</span></div>
+            <div class="legend-item"><div class="legend-color heavy"></div><span>Heavy</span></div>
+            <div class="legend-item"><div class="legend-color no-data"></div><span>No Data</span></div>
           </div>
         `;
 
