@@ -315,7 +315,7 @@
     </div>
 
     <div class="trend-section">
-      <h2>Today's Fog Trend</h2>
+      <h2 id="trend-title">Today's Fog Trend</h2>
       <div id="trend-container">
         <div class="trend-loading">Loading today's trend...</div>
       </div>
@@ -400,16 +400,41 @@
 
     async function loadTodayTrend() {
       const container = document.getElementById('trend-container');
-      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+      const now = new Date();
+      const todayStr = now.toISOString().split('T')[0];
+      const yesterdayStr = new Date(now - 86400000).toISOString().split('T')[0];
 
       try {
-        const response = await fetch(`/api/history/${today}`);
-        if (!response.ok) {
-          container.innerHTML = '<div class="trend-loading">No historical data available for today yet.</div>';
+        // Fetch today's data first
+        let data = null;
+        let displayDate = todayStr;
+
+        const todayRes = await fetch(`/api/history/${todayStr}`);
+        if (todayRes.ok) {
+          const todayData = await todayRes.json();
+          const readingCount = todayData.hours.filter(h => h !== null).length;
+          // If today has enough readings, use it; otherwise fall back to yesterday
+          if (readingCount >= 3) {
+            data = todayData;
+          }
+        }
+
+        if (!data) {
+          const yesterdayRes = await fetch(`/api/history/${yesterdayStr}`);
+          if (yesterdayRes.ok) {
+            data = await yesterdayRes.json();
+            displayDate = yesterdayStr;
+          }
+        }
+
+        if (!data) {
+          container.innerHTML = '<div class="trend-loading">No historical data available yet.</div>';
           return;
         }
 
-        const data = await response.json();
+        // Update section title with the date being shown
+        const label = displayDate === todayStr ? "Today's" : new Date(displayDate + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + "'s";
+        document.getElementById('trend-title').textContent = `${label} Fog Trend`;
 
         // Build timeline for each region
         const regions = ['golden-gate', 'downtown'];
