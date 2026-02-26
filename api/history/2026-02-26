@@ -1,0 +1,44 @@
+{
+  "hours": [
+    {
+      "timestamp": "2026-02-26T00:22:44.515Z",
+      "regions": {
+        "downtown": {
+          "fogLevel": "light",
+          "visibilityScore": 50,
+          "landmarksVisible": 1,
+          "totalLandmarks": 2
+        },
+        "golden-gate": {
+          "fogLevel": "heavy",
+          "visibilityScore": 0,
+          "landmarksVisible": 0,
+          "totalLandmarks": 3
+        }
+      }
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ]
+}
