@@ -3,40 +3,40 @@
     "region": "downtown",
     "fogLevel": "light",
     "visibilityScore": 50,
-    "timestamp": "2026-03-01T14:06:23.321Z",
+    "timestamp": "2026-03-01T15:06:00.032Z",
     "landmarks": [
       {
         "name": "transamerica-pyramid",
         "visible": false,
-        "similarity": 0.32
+        "similarity": 0.16
       },
       {
         "name": "treasure-island",
         "visible": true,
-        "similarity": 0.21
+        "similarity": 0.35
       }
     ]
   },
   {
     "region": "golden-gate",
-    "fogLevel": "moderate",
-    "visibilityScore": 33,
-    "timestamp": "2026-03-01T14:06:25.545Z",
+    "fogLevel": "heavy",
+    "visibilityScore": 0,
+    "timestamp": "2026-03-01T15:06:02.373Z",
     "landmarks": [
       {
         "name": "gg-bridge-south-tower",
         "visible": false,
-        "similarity": 0.55
+        "similarity": 0.25
       },
       {
         "name": "marin-headlands",
-        "visible": true,
-        "similarity": 0.76
+        "visible": false,
+        "similarity": 0.13
       },
       {
         "name": "palace-of-fine-arts",
         "visible": false,
-        "similarity": 0.29
+        "similarity": 0.4
       }
     ]
   }
