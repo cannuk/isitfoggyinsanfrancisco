@@ -2,12 +2,12 @@
   "region": "golden-gate",
   "fogLevel": "moderate",
   "visibilityScore": 33,
-  "timestamp": "2026-03-20T05:25:53.847Z",
+  "timestamp": "2026-03-20T06:20:49.802Z",
   "landmarks": [
     {
       "name": "gg-bridge-south-tower",
       "visible": false,
-      "similarity": 0.34
+      "similarity": 0.33
     },
     {
       "name": "marin-headlands",
