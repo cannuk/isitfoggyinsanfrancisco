@@ -239,7 +239,17 @@
         }
       }
     },
-    null,
+    {
+      "timestamp": "2026-04-03T15:17:57.011Z",
+      "regions": {
+        "golden-gate": {
+          "fogLevel": "heavy",
+          "visibilityScore": 0,
+          "landmarksVisible": 0,
+          "totalLandmarks": 3
+        }
+      }
+    },
     null,
     null,
     null,
