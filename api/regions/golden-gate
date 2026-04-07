@@ -2,22 +2,22 @@
   "region": "golden-gate",
   "fogLevel": "heavy",
   "visibilityScore": 0,
-  "timestamp": "2026-04-07T19:26:57.277Z",
+  "timestamp": "2026-04-07T20:14:16.181Z",
   "landmarks": [
     {
       "name": "gg-bridge-south-tower",
       "visible": false,
-      "similarity": 0.22
+      "similarity": 0.24
     },
     {
       "name": "marin-headlands",
       "visible": false,
-      "similarity": 0.24
+      "similarity": 0.29
     },
     {
       "name": "palace-of-fine-arts",
       "visible": false,
-      "similarity": 0.34
+      "similarity": 0.33
     }
   ]
 }
