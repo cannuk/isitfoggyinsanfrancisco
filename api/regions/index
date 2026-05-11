@@ -3,7 +3,7 @@
     "region": "downtown",
     "fogLevel": "heavy",
     "visibilityScore": 0,
-    "timestamp": "2026-05-11T11:06:08.010Z",
+    "timestamp": "2026-05-11T13:01:50.275Z",
     "landmarks": [
       {
         "name": "transamerica-pyramid",
@@ -21,7 +21,7 @@
     "region": "golden-gate",
     "fogLevel": "heavy",
     "visibilityScore": 0,
-    "timestamp": "2026-05-11T11:06:09.662Z",
+    "timestamp": "2026-05-11T13:01:51.597Z",
     "landmarks": [
       {
         "name": "gg-bridge-south-tower",
