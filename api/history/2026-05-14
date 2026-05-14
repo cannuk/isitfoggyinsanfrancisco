@@ -343,6 +343,22 @@
         }
       }
     },
-    null
+    {
+      "timestamp": "2026-05-14T23:20:31.078Z",
+      "regions": {
+        "downtown": {
+          "fogLevel": "heavy",
+          "visibilityScore": 0,
+          "landmarksVisible": 0,
+          "totalLandmarks": 2
+        },
+        "golden-gate": {
+          "fogLevel": "heavy",
+          "visibilityScore": 0,
+          "landmarksVisible": 0,
+          "totalLandmarks": 3
+        }
+      }
+    }
   ]
 }
