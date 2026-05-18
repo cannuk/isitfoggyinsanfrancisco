@@ -3,12 +3,12 @@
     "region": "downtown",
     "fogLevel": "heavy",
     "visibilityScore": 0,
-    "timestamp": "2026-05-18T09:13:58.431Z",
+    "timestamp": "2026-05-18T11:21:27.469Z",
     "landmarks": [
       {
         "name": "transamerica-pyramid",
         "visible": false,
-        "similarity": 0.19
+        "similarity": 0.2
       },
       {
         "name": "treasure-island",
@@ -21,7 +21,7 @@
     "region": "golden-gate",
     "fogLevel": "heavy",
     "visibilityScore": 0,
-    "timestamp": "2026-05-18T09:14:00.823Z",
+    "timestamp": "2026-05-18T11:21:29.293Z",
     "landmarks": [
       {
         "name": "gg-bridge-south-tower",
