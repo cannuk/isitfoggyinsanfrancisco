@@ -126,7 +126,7 @@
     },
     null,
     {
-      "timestamp": "2026-05-20T13:02:33.302Z",
+      "timestamp": "2026-05-20T13:54:55.982Z",
       "regions": {
         "downtown": {
           "fogLevel": "light",
@@ -135,9 +135,9 @@
           "totalLandmarks": 2
         },
         "golden-gate": {
-          "fogLevel": "moderate",
-          "visibilityScore": 33,
-          "landmarksVisible": 1,
+          "fogLevel": "heavy",
+          "visibilityScore": 0,
+          "landmarksVisible": 0,
           "totalLandmarks": 3
         }
       }
