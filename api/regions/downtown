@@ -2,12 +2,12 @@
   "region": "downtown",
   "fogLevel": "light",
   "visibilityScore": 50,
-  "timestamp": "2026-06-26T09:08:16.456Z",
+  "timestamp": "2026-06-26T11:02:19.312Z",
   "landmarks": [
     {
       "name": "transamerica-pyramid",
       "visible": false,
-      "similarity": 0.29
+      "similarity": 0.31
     },
     {
       "name": "treasure-island",
