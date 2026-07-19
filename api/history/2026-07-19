@@ -21,7 +21,23 @@
     },
     null,
     null,
-    null,
+    {
+      "timestamp": "2026-07-19T05:48:21.227Z",
+      "regions": {
+        "downtown": {
+          "fogLevel": "heavy",
+          "visibilityScore": 0,
+          "landmarksVisible": 0,
+          "totalLandmarks": 2
+        },
+        "golden-gate": {
+          "fogLevel": "heavy",
+          "visibilityScore": 0,
+          "landmarksVisible": 0,
+          "totalLandmarks": 3
+        }
+      }
+    },
     null,
     null,
     null,
